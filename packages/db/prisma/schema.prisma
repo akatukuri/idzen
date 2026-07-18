@@ -1,0 +1,28 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "mysql"; url = env("DATABASE_URL") }
+
+enum Role { CUSTOMER ADMIN }
+enum OrderStatus { PENDING PAID PROCESSING SHIPPED DELIVERED CANCELLED }
+enum PaymentStatus { PENDING PAID FAILED REFUNDED }
+model User {
+  id String @id @default(cuid())
+  email String @unique
+  name String
+  passwordHash String?
+  role Role @default(CUSTOMER)
+  phone String? @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  addresses Address[]
+  orders Order[]
+  reviews Review[]
+  otps Otp[]
+}
+model Otp { id String @id @default(cuid()); email String; code String; expiresAt DateTime; user User? @relation(fields: [userId], references: [id]); userId String?; createdAt DateTime @default(now()); @@index([email]) }
+model Category { id String @id @default(cuid()); name String @unique; slug String @unique; products Product[] }
+model Product { id String @id @default(cuid()); name String; slug String @unique; description String @db.Text; price Int; compareAtPrice Int?; stock Int @default(0); isActive Boolean @default(true); images String @db.Text; category Category @relation(fields:[categoryId],references:[id]); categoryId String; reviews Review[]; orderItems OrderItem[]; createdAt DateTime @default(now()); updatedAt DateTime @updatedAt; @@index([categoryId, isActive]) }
+model Address { id String @id @default(cuid()); label String; line1 String; line2 String?; city String; state String; postalCode String; country String @default("IN"); user User @relation(fields:[userId],references:[id]); userId String }
+model Coupon { id String @id @default(cuid()); code String @unique; percentage Int?; amount Int?; minOrderAmount Int?; startsAt DateTime; endsAt DateTime; maxUses Int?; uses Int @default(0); isActive Boolean @default(true) }
+model Order { id String @id @default(cuid()); orderNumber String @unique; status OrderStatus @default(PENDING); subtotal Int; discount Int @default(0); total Int; paymentStatus PaymentStatus @default(PENDING); razorpayOrderId String? @unique; user User @relation(fields:[userId],references:[id]); userId String; address Address? @relation(fields:[addressId],references:[id]); addressId String?; couponCode String?; items OrderItem[]; createdAt DateTime @default(now()); updatedAt DateTime @updatedAt; @@index([userId, createdAt]) }
+model OrderItem { id String @id @default(cuid()); quantity Int; price Int; order Order @relation(fields:[orderId],references:[id]); orderId String; product Product @relation(fields:[productId],references:[id]); productId String }
+model Review { id String @id @default(cuid()); rating Int; title String?; body String? @db.Text; isApproved Boolean @default(false); user User @relation(fields:[userId],references:[id]); userId String; product Product @relation(fields:[productId],references:[id]); productId String; createdAt DateTime @default(now()); @@unique([userId, productId]) }

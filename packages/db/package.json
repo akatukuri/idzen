@@ -1,0 +1,1 @@
+{"name":"@idzen/db","version":"0.1.0","private":true,"main":"generated/client","scripts":{"db:generate":"prisma generate","db:migrate":"prisma migrate dev"},"dependencies":{"@prisma/client":"^6.3.1"},"devDependencies":{"prisma":"^6.3.1"}}

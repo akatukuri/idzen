@@ -1,0 +1,15 @@
+{
+  "name": "idzen",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "npm@11.6.2",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w @idzen/api\" \"npm run dev -w @idzen/web\"",
+    "build": "npm run build -w @idzen/shared && npm run build -w @idzen/api && npm run build -w @idzen/web",
+    "lint": "npm run lint -ws --if-present",
+    "test": "npm run test -ws --if-present",
+    "db:generate": "npm run db:generate -w @idzen/db"
+  },
+  "devDependencies": {"concurrently": "^9.1.2"}
+}
